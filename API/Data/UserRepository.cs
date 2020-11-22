@@ -22,12 +22,18 @@ namespace API.Data
             _context = context;
         }
 
-        public async Task<MemberDto> GetMemberAsync(string username)
+        public async Task<MemberDto> GetMemberAsync(string username, string currentUser)
         {
-            return await _context.Users
+            var query = _context.Users
                 .Where(x => x.UserName == username)
-                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
-                .SingleOrDefaultAsync();
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider);
+            
+            if (username == currentUser)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
+            return await query.SingleOrDefaultAsync();
         }
 
         public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
@@ -56,6 +62,16 @@ namespace API.Data
         public async Task<AppUser> GetUserByIdAsync(int Id)
         {
             return await _context.Users.FindAsync(Id);
+        }
+
+        public async Task<AppUser> GetUserByPhotoId(int photoId)
+        {
+            return await _context.Users
+                .Include(u => u.Photos)
+                .IgnoreQueryFilters()
+                .Where(u => u.Photos.Any(p => p.Id == photoId))
+                .SingleOrDefaultAsync();
+            
         }
 
         public async Task<AppUser> GetUserByUsernameAsync(string username)

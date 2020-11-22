@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using API.Entities;
@@ -35,6 +36,9 @@ namespace API.Data
                 user.UserName = user.UserName.ToLower();
                 await userManager.CreateAsync(user, "asasas");
                 await userManager.AddToRoleAsync(user, "Member");
+                
+                var mainPhoto = user.Photos.Where(p => p.IsMain).FirstOrDefault();
+                if (mainPhoto != null) mainPhoto.IsApproved = true;
             }
 
             var admin = new AppUser

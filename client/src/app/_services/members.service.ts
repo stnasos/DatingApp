@@ -23,6 +23,7 @@ export class MembersService {
     accountService.currentUser$.pipe(take(1)).subscribe(user => {
       this.user = user;
       this.userParams = new UserParams(user);
+      this.memberCache.clear();
     })
   }
 
